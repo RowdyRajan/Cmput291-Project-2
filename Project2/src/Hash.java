@@ -144,7 +144,66 @@ public class Hash implements DataBaseType {
 
 	@Override
 	public void retrieveByData() {
-		// TODO Auto-generated method stub
+		//If no data base is populated
+		if(database == null){
+			System.out.println("Please populate the database before continung");
+			return;
+		}
+		
+		//Get the input
+		System.out.println("Please enter the data you are searching for");
+		Scanner scanner = new Scanner(System.in);
+		String inputString = scanner.nextLine();
+		
+		//Values to look through
+		DatabaseEntry key = new DatabaseEntry();
+		DatabaseEntry value = new DatabaseEntry();
+		
+		//Incrementing counter
+		int recordsFound = 0;
+		
+		long startTime = System.currentTimeMillis();
+		
+		//Iterating through the database 
+		try {
+			//DatabaseEntry databaseEntry = new DatabaseEntry("a".getBytes());
+			Cursor cursor = database.openCursor(null, null);
+		
+			//cursor.getSearchKeyRange(databaseEntry, value, LockMode.DEFAULT);
+			FileWriter fileWriter = new FileWriter("answers.txt",true);
+			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
+			
+			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
+
+				String dataString = new String(value.getData(), "UTF-8");
+				String keyString = new String(key.getData(), "UTF-8");
+				//System.out.println(dataString);
+				
+				//Testing if the data is equal
+				if(inputString.equals(dataString)){
+					recordsFound++;
+					
+					System.out.println(keyString);
+					System.out.println(dataString);
+					
+					bufferedWriter.write(keyString + "\n");
+					bufferedWriter.write(dataString + "\n\n");
+				}
+			}
+			
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+
+		}
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("Records found: " + recordsFound);
+		System.out.println("Execution time: " + (endTime - startTime) + "ms");
 		
 	}
 
