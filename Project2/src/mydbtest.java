@@ -16,7 +16,8 @@ public class mydbtest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String dbType = args[1].toUpperCase();
+		
+		String dbType = args[0].toUpperCase();
 		DataBaseType myData;
 		if(dbType.equals("BTREE")) {
 			myData = new Btree();
@@ -28,8 +29,11 @@ public class mydbtest {
 			myData = new IndexFile();
 		}
 		else {
+			System.out.println("Incorrect database type");
 			return;
 		}
+		
+	
 
 		while (true) {
 			System.out.print("Input a number for one of the following\n"
@@ -44,8 +48,14 @@ public class mydbtest {
 				case 1: 
 					myData.populate();				
 					break;
-			
-			
+					
+				case 2:
+					myData.retrieveByKey();
+					break;
+				case 6:
+					myData.destroy();
+					System.out.println("Goodbye!");
+					return;
 			}
 			
 		}
@@ -56,7 +66,7 @@ public class mydbtest {
 			try{
 				Scanner scanner = new Scanner(System.in);
 				int choice = scanner.nextInt();
-				if(choice <1 || choice > 5){
+				if(choice <1 || choice > 6){
 					System.out.println("Invalid choice please try again");
 					continue;
 				}
