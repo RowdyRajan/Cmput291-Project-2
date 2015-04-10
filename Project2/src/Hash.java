@@ -12,6 +12,7 @@ public class Hash implements DataBaseType {
 	//File name for the table
 	private static final String MY_DB_TABLE = "/tmp/egsmith_db";
 	private static final int NUM_RECORDS = 1000;
+	
 	@Override
 	public void populate() {
 
@@ -24,8 +25,10 @@ public class Hash implements DataBaseType {
 		    dbConfig.setType(DatabaseType.HASH);
 		    dbConfig.setAllowCreate(true);
 		    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
-			System.out.println(MY_DB_TABLE + "successfully created!");
-			/*  Generate a random string with the length between 64 and 127,
+			 
+		    System.out.println(MY_DB_TABLE + " successfully created!");
+			
+		    /*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
 			 *
 			 *  Seeded once only.
@@ -68,6 +71,7 @@ public class Hash implements DataBaseType {
 						/* to insert the key/data pair into the database */
 			            myTable.putNoOverwrite(null, kdbt, ddbt);
 		            }
+		            System.out.println(MY_DB_TABLE + " Populated!");
 		        }
 		        catch (DatabaseException dbe) {
 		            System.err.println("Populate the table: "+dbe.toString());
@@ -79,7 +83,7 @@ public class Hash implements DataBaseType {
 		    
 		}
 		catch (Exception e1) {
-			System.err.println("Create Database Failed" + e1.toString());
+			System.err.println("Create Database Failed: " + e1.toString());
 		}	
 		
 	}
@@ -98,7 +102,7 @@ public class Hash implements DataBaseType {
 
 	@Override
 	public void retrieveByRange() {
-		// TODO Auto-generated method stub
+		// Hash by range
 		
 	}
 
