@@ -75,7 +75,8 @@ public class Btree implements DataBaseType {
 						/* to create a DBT for data */
 						ddbt = new DatabaseEntry(s.getBytes());
 						ddbt.setSize(s.length()); 
-						
+						System.out.println(s.length());
+						System.out.println(s.length());
 						System.out.println(new String(ddbt.getData()));
 						System.out.println("");
 						/* to insert the key/data pair into the database */
@@ -227,6 +228,10 @@ public class Btree implements DataBaseType {
 					bufferedWriter.write(keyString + "\n");
 					bufferedWriter.write(dataString + "\n\n");
 				}
+				
+				key = new DatabaseEntry();
+				value = new DatabaseEntry();
+				
 			}
 			bufferedWriter.close();
 			cursor.close();
@@ -244,9 +249,7 @@ public class Btree implements DataBaseType {
 
 		System.out.println("Records found: " + recordsFound);
 		System.out.println("Execution time: " + (endTime - startTime) + "ms");
-		
-		
-		
+			
 		
 	}
 
@@ -319,6 +322,10 @@ public class Btree implements DataBaseType {
 				
 				keyString = new String(Key.getData());
 				getData = new String(Data.getData());
+				
+				Key = new DatabaseEntry();
+				Data = new DatabaseEntry();
+				
 				num++;	
 			}
 						
