@@ -159,28 +159,35 @@ public class Hash implements DataBaseType {
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry value = new DatabaseEntry();
 		
-		//Incrementor
+		//Incrementing counter
 		int recordsFound = 0;
 		
 		long startTime = System.currentTimeMillis();
 		
-		//Iteratatin throught the database 
+		//Iterating through the database 
 		try {
+			//DatabaseEntry databaseEntry = new DatabaseEntry("a".getBytes());
 			Cursor cursor = database.openCursor(null, null);
+		
+			//cursor.getSearchKeyRange(databaseEntry, value, LockMode.DEFAULT);
 			FileWriter fileWriter = new FileWriter("answers.txt",true);
 			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
+			
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
-				String dataStringt = new String(value.getData());
-				bufferedWriter.write(dataStringt + "\n\n");
-				System.out.println(dataStringt);
+
+				String dataString = new String(value.getData(), "UTF-8");
+				String keyString = new String(key.getData(), "UTF-8");
+				//System.out.println(dataString);
+				
 				//Testing if the data is equal
-				if(inputString.equals(new String(value.getData()))){
+				if(inputString.equals(dataString)){
 					recordsFound++;
 					
-					String keyString = new String(key.getData());
-					String dataString = new String(value.getData());
-					//bufferedWriter.write(keyString + "\n");
-					//bufferedWriter.write(dataString + "\n\n");
+					System.out.println(keyString);
+					System.out.println(dataString);
+					
+					bufferedWriter.write(keyString + "\n");
+					bufferedWriter.write(dataString + "\n\n");
 				}
 			}
 			

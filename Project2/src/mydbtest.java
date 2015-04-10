@@ -48,11 +48,9 @@ public class mydbtest {
 				case 1: 
 					myData.populate();				
 					break;
-					
 				case 2:
 					myData.retrieveByKey();
 					break;
-					
 				case 3:
 					myData.retrieveByData();
 					break;
