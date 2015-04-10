@@ -153,8 +153,9 @@ public class Btree implements DataBaseType {
 		System.out.println("Please enter search range.");
 		
 		System.out.print("Start: ");
-		Scanner s = new Scanner(System.in).useDelimiter(" ");
-		String start = s.next();
+		Scanner s = new Scanner(System.in);
+		String start = s.nextLine();
+		System.out.println("You Entered: " + start);
 		DatabaseEntry startKey;
 		try {
 			startKey = new DatabaseEntry(start.getBytes("UTF-8"));
@@ -162,10 +163,13 @@ public class Btree implements DataBaseType {
 			System.err.println("Encoding Exception:" + e1.toString());
 			return;
 		}
-				
+		String other = new String(startKey.getData());
+		System.out.println(start.compareTo(other));
+		
 		System.out.print("End: ");
-		s = new Scanner(System.in).useDelimiter(" ");
-		String end = s.next();
+		s = new Scanner(System.in);
+		String end = s.nextLine();
+		System.out.println("You Entered: " + end);
 		
 		
 		// Create cursor
@@ -190,23 +194,24 @@ public class Btree implements DataBaseType {
 		    FileWriter fileWriter = new FileWriter("answers.txt",true);
 		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
 		    
-		    
+		    int num = 0;
 			while(getData.compareTo(end) < 1) {
-				
+				System.out.println(getData.compareTo(end));
+				num++;
 				/* Write each key | data pair in range to file */
 				bufferedWriter.write(keyString + "\n");
 				bufferedWriter.write(getData + "\n\n");
 								
 				if(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 					getData = new String(Data.getData());
-					keyString = new String(startKey.getData());
+					keyString = new String(Key.getData());
 				} else {
-					break;
+					//break;
 				}
 			}
 			
 			long endTime = System.currentTimeMillis();
-			System.out.print("Records found: 1\nExecution time: " + (endTime-startTime) +"ms\n\n");
+			System.out.print("Records found: " + num + "\nExecution time: " + (endTime-startTime) +"ms\n\n");
 			bufferedWriter.close();	
 			cursor.close();
 			
