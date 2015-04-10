@@ -31,7 +31,7 @@ public class Btree implements DataBaseType {
 		    dbConfig.setType(DatabaseType.BTREE);
 		    dbConfig.setAllowCreate(true);
 		    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
-			System.out.println(MY_DB_TABLE + "successfully created!");
+			System.out.println(MY_DB_TABLE + " successfully created!");
 			/*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
 			 *
@@ -75,6 +75,7 @@ public class Btree implements DataBaseType {
 						/* to insert the key/data pair into the database */
 			            myTable.putNoOverwrite(null, kdbt, ddbt);
 		            }
+		            System.out.println(MY_DB_TABLE + " Populated!");
 		        }
 		        catch (DatabaseException dbe) {
 		            System.err.println("Populate the table: "+dbe.toString());
