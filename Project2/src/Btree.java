@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.Scanner;
 import com.sleepycat.db.*;
-import java.lang.Object;
 
 public class Btree implements DataBaseType {
 	
@@ -200,8 +199,7 @@ public class Btree implements DataBaseType {
 		    }
 		    
 			while(keyString.compareTo(end) < 1) {
-				
-				System.out.println(keyString.compareTo(end));
+
 				/* Write each key | data pair in range to file */
 				bufferedWriter.write(keyString + "\n");
 				bufferedWriter.write(getData + "\n\n");
