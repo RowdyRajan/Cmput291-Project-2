@@ -21,7 +21,7 @@ public class Btree implements DataBaseType {
 	
 	Database database;
 	//File name for the table
-	private static final String MY_DB_TABLE = "/tmp/egsmith_db";
+	private static final String MY_DB_TABLE = "/tmp/rkjassal_db";
 	private static final int NUM_RECORDS = 1000;
 	
 	@Override
