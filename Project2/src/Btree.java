@@ -3,17 +3,11 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.Scanner;
 
-import com.sleepycat.db.Cursor;
-import com.sleepycat.db.Database;
-import com.sleepycat.db.DatabaseConfig;
-import com.sleepycat.db.DatabaseEntry;
-import com.sleepycat.db.DatabaseException;
-import com.sleepycat.db.DatabaseType;
-import com.sleepycat.db.LockMode;
-import com.sleepycat.db.OperationStatus;
+import com.sleepycat.db.*;
 
 
 
@@ -21,10 +15,12 @@ public class Btree implements DataBaseType {
 	
 	Database database;
 	//File name for the table
-	private static final String MY_DB_TABLE = "/tmp/1_db";
+
+	private static final String MY_DB_TABLE = "/tmp/egsmith_db/myTable";
 	private static final int NUM_RECORDS = 1000;
 	
 	@Override
+	
 	public void populate() {
 
 		int range;
@@ -37,6 +33,7 @@ public class Btree implements DataBaseType {
 		    dbConfig.setAllowCreate(true);
 		    database = new Database(MY_DB_TABLE, null, dbConfig);
 			System.out.println(MY_DB_TABLE + " successfully created!");
+
 			/*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
 			 *
@@ -64,7 +61,7 @@ public class Btree implements DataBaseType {
 			
 				        // to print out the key/data pair
 				        // System.out.println(s);	
-			
+		
 						/* to generate a data string */
 						range = 64 + random.nextInt( 64 );
 						s = "";
@@ -87,15 +84,49 @@ public class Btree implements DataBaseType {
 		            System.err.println("Populate the table: "+dbe.toString());
 		            System.exit(1);
 		        }		
-		    
-		
-		    
+	    
 		}
 		catch (Exception e1) {
 			System.err.println("Create Database Failed" + e1.toString());
+			System.exit(1);
 		}	
 		
 	}
+	
+	/*
+	public void populate(){
+		DatabaseConfig dbConfig = new DatabaseConfig();
+	    dbConfig.setType(DatabaseType.BTREE);
+	    dbConfig.setAllowCreate(true);
+	    String s = "JACK";
+	    String s1 = "iscoo";
+	    String s3 = "JACK2";
+	    String s4 = "iscoo2";
+	    DatabaseEntry kdbt;
+	    DatabaseEntry ddbt;
+	    
+	    try {
+			database = new Database(MY_DB_TABLE, null, dbConfig);
+			kdbt = new DatabaseEntry(s.getBytes());
+			kdbt.setSize(s.length()); 
+			ddbt = new DatabaseEntry(s1.getBytes());
+			ddbt.setSize(s1.length()); 
+			database.putNoOverwrite(null, kdbt, ddbt);
+			
+			kdbt = new DatabaseEntry(s3.getBytes());
+			kdbt.setSize(s3.length()); 
+			ddbt = new DatabaseEntry(s4.getBytes());
+			ddbt.setSize(s4.length()); 
+			database.putNoOverwrite(null, kdbt, ddbt);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	*/
 
 	@Override
 	public void retrieveByKey() {
@@ -170,13 +201,14 @@ public class Btree implements DataBaseType {
 		
 		//Iteratatin throught the database 
 		try {
+			DatabaseEntry databaseEntry = new DatabaseEntry("a".getBytes());
 			Cursor cursor = database.openCursor(null, null);
-			FileWriter fileWriter = new FileWriter("answers.txt",true);
-			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
-			cursor.getFirst(key, value, LockMode.DEFAULT);
+			cursor.getSearchKeyRange(databaseEntry, value, LockMode.DEFAULT);
+			//FileWriter fileWriter = new FileWriter("answers.txt",true);
+			//BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
 				String dataStringt = new String(value.getData());
-				bufferedWriter.write(dataStringt + "\n\n");
+				//bufferedWriter.write(dataStringt + "\n\n");
 				System.out.println(dataStringt);
 				//Testing if the data is equal
 				if(inputString.equals(new String(value.getData()))){
@@ -193,11 +225,7 @@ public class Btree implements DataBaseType {
 			e.printStackTrace();
 			System.out.println("Error");
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-
-		}
+		}	
 		long endTime = System.currentTimeMillis();
 
 		System.out.println("Records found: " + recordsFound);
@@ -207,10 +235,88 @@ public class Btree implements DataBaseType {
 
 	@Override
 	public void retrieveByRange() {
-		// TODO Auto-generated method stub
+		if(database == null){
+			System.out.println("Please populate the database before continung");
+			return;
+		}
 		
+		// prompt user for range
+		System.out.println("Please enter search range.");
+		
+		System.out.print("Start: ");
+		Scanner s = new Scanner(System.in);
+		String start = s.nextLine();
+		System.out.println("You Entered: " + start);
+		DatabaseEntry startKey;
+		try {
+			startKey = new DatabaseEntry(start.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e1) {
+			System.err.println("Encoding Exception:" + e1.toString());
+			return;
+		}
+		String other = new String(startKey.getData());
+		System.out.println(start.compareTo(other));
+		
+		System.out.print("End: ");
+		s = new Scanner(System.in);
+		String end = s.nextLine();
+		System.out.println("You Entered: " + end);
+		
+		
+		
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			Cursor cursor = database.openCursor(null, null);
+			DatabaseEntry Key = new DatabaseEntry();
+			DatabaseEntry Data = new DatabaseEntry();
+			
+			OperationStatus retVal = cursor.getSearchKeyRange(startKey, Data, LockMode.DEFAULT);
+			
+		    if (retVal == OperationStatus.NOTFOUND) {
+		        System.out.println(startKey + " not found in" + database.getDatabaseName());
+		        return;
+		    }
+		    
+		    String getData = new String(Data.getData());
+		    String keyString =  new String(startKey.getData());
+		    
+		    /* Append initial key | data pair */
+		    FileWriter fileWriter = new FileWriter("answers.txt",true);
+		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
+		    
+		    int num = 0;
+			while(getData.compareTo(end) < 1) {
+				System.out.println(getData.compareTo(end));
+				num++;
+				/* Write each key | data pair in range to file */
+				bufferedWriter.write(keyString + "\n");
+				bufferedWriter.write(getData + "\n\n");
+								
+				if(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+					getData = new String(Data.getData());
+					keyString = new String(Key.getData());
+				} else {
+					//break;
+				}
+			}
+			System.out.println(getData.compareTo(end));
+			
+			long endTime = System.currentTimeMillis();
+			System.out.print("Records found: " + num + "\nExecution time: " + (endTime-startTime) +"ms\n\n");
+			bufferedWriter.close();	
+			cursor.close();
+			
+		}
+		catch (DatabaseException e) {
+			System.err.println("Create Database Failed" + e.toString());
+			System.exit(1);	
+		}
+		catch (IOException e) {	
+			e.printStackTrace();
+			System.out.println("Writing error");
+		} 
 	}
-
 	@Override
 	public void destroy() {
 		if(database == null){

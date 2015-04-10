@@ -56,6 +56,9 @@ public class mydbtest {
 				case 3:
 					myData.retrieveByData();
 					break;
+				case 4:
+					myData.retrieveByRange();
+					break;
 				case 6:
 					myData.destroy();
 					System.out.println("Goodbye!");

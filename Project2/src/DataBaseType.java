@@ -1,5 +1,4 @@
-import com.sleepycat.db.Database;
-
+import com.sleepycat.db.*;
 
 public interface DataBaseType {
 
