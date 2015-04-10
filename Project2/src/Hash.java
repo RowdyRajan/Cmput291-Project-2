@@ -4,6 +4,7 @@ import java.util.Scanner;
 import com.sleepycat.db.*;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -158,8 +159,9 @@ public class Hash implements DataBaseType {
 		System.out.println("Please enter search range.");
 		
 		System.out.print("Start: ");
-		Scanner s = new Scanner(System.in).useDelimiter(" ");
-		String start = s.next();
+		Scanner s = new Scanner(System.in);
+		String start = s.nextLine();
+		System.out.println("You Entered: " + start);
 		DatabaseEntry startKey;
 		try {
 			startKey = new DatabaseEntry(start.getBytes("UTF-8"));
@@ -167,12 +169,12 @@ public class Hash implements DataBaseType {
 			System.err.println("Encoding Exception:" + e1.toString());
 			return;
 		}
-				
+			
 		System.out.print("End: ");
-		s = new Scanner(System.in).useDelimiter(" ");
-		String end = s.next();
+		s = new Scanner(System.in);
+		String end = s.nextLine();
+		System.out.println("You Entered: " + end);
 				
-		// Create cursor
 		long startTime = System.currentTimeMillis();
 		
 		try {
@@ -180,7 +182,7 @@ public class Hash implements DataBaseType {
 			DatabaseEntry Key = new DatabaseEntry();
 			DatabaseEntry Data = new DatabaseEntry();
 			
-			OperationStatus retVal = cursor.getSearchKey(startKey, Data, LockMode.DEFAULT);
+			OperationStatus retVal = cursor.getSearchKeyRange(startKey, Data, LockMode.DEFAULT);
 			
 		    if (retVal == OperationStatus.NOTFOUND) {
 		        System.out.println(startKey + " not found in" + database.getDatabaseName());
@@ -193,24 +195,33 @@ public class Hash implements DataBaseType {
 		    /* Append initial key | data pair */
 		    FileWriter fileWriter = new FileWriter("answers.txt",true);
 		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
+		    int num;
 		    
+		    if((start.compareTo(end) >= 1) || (keyString.compareTo(end) >= 1)){
+		    	num = 0;
+		    	keyString = end + "z";
+		    } else {
+		    	num = 1;
+		    }
 		    
-			while(getData.compareTo(end) < 1) {
+			while(keyString.compareTo(end) < 1) {
 				
+				System.out.println(keyString.compareTo(end));
 				/* Write each key | data pair in range to file */
 				bufferedWriter.write(keyString + "\n");
 				bufferedWriter.write(getData + "\n\n");
-								
-				if(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-					getData = new String(Data.getData());
-					keyString = new String(startKey.getData());
-				} else {
+				
+				if(cursor.getNext(Key, Data, LockMode.DEFAULT) != OperationStatus.SUCCESS) {
 					break;
 				}
+				
+				keyString = new String(Key.getData());
+				getData = new String(Data.getData());
+				num++;	
 			}
-			
+						
 			long endTime = System.currentTimeMillis();
-			System.out.print("Records found: 1\nExecution time: " + (endTime-startTime) +"ms\n\n");
+			System.out.print("Records found: " + num + "\nExecution time: " + (endTime-startTime) +"ms\n\n");
 			bufferedWriter.close();	
 			cursor.close();
 			
@@ -223,7 +234,6 @@ public class Hash implements DataBaseType {
 			e.printStackTrace();
 			System.out.println("Writing error");
 		} 
-		
 	}
 
 	@Override
@@ -234,6 +244,9 @@ public class Hash implements DataBaseType {
 		try {
 			database.close();
 			database.remove(MY_DB_TABLE, null, null);
+			File table = new File("/tmp/egsmith_db/myTable");
+			table.delete();
+			
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
