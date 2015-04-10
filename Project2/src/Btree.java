@@ -21,7 +21,7 @@ public class Btree implements DataBaseType {
 	
 	Database database;
 	//File name for the table
-	private static final String MY_DB_TABLE = "/tmp/rkjassal_db";
+	private static final String MY_DB_TABLE = "/tmp/1_db";
 	private static final int NUM_RECORDS = 1000;
 	
 	@Override
@@ -173,7 +173,7 @@ public class Btree implements DataBaseType {
 			Cursor cursor = database.openCursor(null, null);
 			FileWriter fileWriter = new FileWriter("answers.txt",true);
 			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
-			
+			cursor.getFirst(key, value, LockMode.DEFAULT);
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
 				String dataStringt = new String(value.getData());
 				bufferedWriter.write(dataStringt + "\n\n");
