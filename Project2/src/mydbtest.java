@@ -53,6 +53,9 @@ public class mydbtest {
 					myData.retrieveByKey();
 					break;
 					
+				case 3:
+					myData.retrieveByData();
+					break;
 				case 4:
 					myData.retrieveByRange();
 					break;
