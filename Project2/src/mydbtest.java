@@ -43,8 +43,8 @@ public class mydbtest {
 					+ "4. Retrieve records with a given range of key values\n"
 					+ "5. Destroy the database\n" + "6. Quit\n");
 			int choice = inputChecker();
-			System.out.println(choice);
-			switch (choice) {
+
+switch (choice) {
 				case 1: 
 					myData.populate();				
 					break;
