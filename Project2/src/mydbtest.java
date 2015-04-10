@@ -1,11 +1,10 @@
-<<<<<<< HEAD
+
 import com.sleepycat.db.*;
 import java.io.*;
 import java.util.*;
-=======
 import java.util.InputMismatchException;
 import java.util.Scanner;
->>>>>>> 8b100867c162335e830ad428b73c5bfe876f54ab
+
 
 public class myDBtest {
 
@@ -17,18 +16,7 @@ public class myDBtest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-<<<<<<< HEAD
-		// TODO Auto-generated method stub
-		if( (args[1].equalsIgnoreCase("BTREE")) || (args[1].equalsIgnoreCase("HASH")) || (args[1].equalsIgnoreCase("INDEX"))) {
-			String dbType = args[1].toUpperCase();
-			createDataBase(dbType);
-		}
-		else {
-			
-		}
-		
-				
-=======
+
 		while (true) {
 			System.out.print("Input a number for one of the following\n"
 					+ "1. Create and poulate a database\n"
@@ -39,6 +27,17 @@ public class myDBtest {
 			int choice = inputChecker();
 			System.out.println(choice);
 			switch (choice) {
+			case 1: 
+				if( (args[1].equalsIgnoreCase("BTREE")) || (args[1].equalsIgnoreCase("HASH")) || (args[1].equalsIgnoreCase("INDEX"))) {
+					String dbType = args[1].toUpperCase();
+					createDataBase(dbType);
+				}
+				else {
+					
+				}
+				break;
+			
+			
 			}
 			
 		}
@@ -59,7 +58,6 @@ public class myDBtest {
 				continue;
 			}
 		}
->>>>>>> 8b100867c162335e830ad428b73c5bfe876f54ab
 	}
 
 	public static void createDataBase(String typeSelection){
@@ -70,8 +68,12 @@ public class myDBtest {
 				DatabaseConfig dbConfig = new DatabaseConfig();
 			    dbConfig.setType(DatabaseType.BTREE);
 			    dbConfig.setAllowCreate(true);
-			    Database my_table = new Database(MY_DB_TABLE, null, dbConfig);
-				
+			    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
+				System.out.println(MY_DB_TABLE + "successfully created!")
+			    
+				myTable.close();
+				myTable.remove(MY_DB_TABLE,null,null);
+			    
 			}
 			catch (Exception e1) {
 				System.err.println("Create Database Failed" + e1.toString());
@@ -85,7 +87,11 @@ public class myDBtest {
 				DatabaseConfig dbConfig = new DatabaseConfig();
 			    dbConfig.setType(DatabaseType.HASH);
 			    dbConfig.setAllowCreate(true);
-				
+			    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
+			    System.out.println(MY_DB_TABLE + "successfully created!")
+			    
+				myTable.close();
+				myTable.remove(MY_DB_TABLE,null,null);
 				
 			}
 			catch (Exception e1) {
