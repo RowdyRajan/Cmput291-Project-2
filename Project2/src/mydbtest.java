@@ -26,7 +26,7 @@ public class mydbtest {
 			myData = new Hash();
 		}
 		else if(dbType.equals("HASH") || dbType.equals("INDEXFILE") || dbType.equals("INDEX_FILE")) {
-			myData = new IndexFile();
+			myData = new IndexFileBtree();
 		}
 		else {
 			System.out.println("Incorrect database type");

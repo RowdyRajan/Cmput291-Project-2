@@ -52,8 +52,8 @@ public class Btree implements DataBaseType {
 						for ( int j = 0; j < range; j++ ) {
 						  s+=(new Character((char)(97+random.nextInt(26)))).toString();
 						}
-						//System.out.println(s);	
-			            //System.out.println("");
+						System.out.println(s);	
+			            System.out.println("");
 			
 						/* to create a DBT for key */
 						kdbt = new DatabaseEntry(s.getBytes());
@@ -75,8 +75,6 @@ public class Btree implements DataBaseType {
 						/* to create a DBT for data */
 						ddbt = new DatabaseEntry(s.getBytes());
 						ddbt.setSize(s.length()); 
-						System.out.println(s.length());
-						System.out.println(s.length());
 						System.out.println(new String(ddbt.getData()));
 						System.out.println("");
 						/* to insert the key/data pair into the database */
@@ -215,15 +213,13 @@ public class Btree implements DataBaseType {
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
 				
 				String dataString = new String(value.getData(), "UTF-8");
-				String keyString = new String(key.getData(), "UTF-8");
-				//System.out.println(dataString);
+				
+				
 				
 				//Testing if the data is equal
 				if(inputString.equals(dataString)){
 					recordsFound++;
-					
-					System.out.println(keyString);
-					System.out.println(dataString);
+					String keyString = new String(key.getData(), "UTF-8");
 					
 					bufferedWriter.write(keyString + "\n");
 					bufferedWriter.write(dataString + "\n\n");

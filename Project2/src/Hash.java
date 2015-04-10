@@ -174,37 +174,41 @@ public class Hash implements DataBaseType {
 			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
 			
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
-
+				
 				String dataString = new String(value.getData(), "UTF-8");
-				String keyString = new String(key.getData(), "UTF-8");
-				//System.out.println(dataString);
+				
+				
 				
 				//Testing if the data is equal
 				if(inputString.equals(dataString)){
 					recordsFound++;
-					
-					System.out.println(keyString);
-					System.out.println(dataString);
+					String keyString = new String(key.getData(), "UTF-8");
 					
 					bufferedWriter.write(keyString + "\n");
 					bufferedWriter.write(dataString + "\n\n");
 				}
+				
+				key = new DatabaseEntry();
+				value = new DatabaseEntry();
+				
 			}
+			bufferedWriter.close();
+			cursor.close();
 			
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 
-		} catch (IOException e) {
+		} catch (IOException e) {	
 			e.printStackTrace();
-			System.out.println("Error");
-
-		}
+			System.out.println("Writing error");
+		} 		
+		
 		long endTime = System.currentTimeMillis();
 
 		System.out.println("Records found: " + recordsFound);
 		System.out.println("Execution time: " + (endTime - startTime) + "ms");
-		
+			
 	}
 
 	@Override
