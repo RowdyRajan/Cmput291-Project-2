@@ -59,6 +59,12 @@ public class mydbtest {
 			}
 		}
 	}
+	
+	private static void retrieveKey(Database database){
+		if (database == null){
+			System.out.println("DataBase not created please");
+		}
+	}
 
 	public static void createDataBase(String typeSelection){
 		
