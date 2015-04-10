@@ -111,7 +111,7 @@ public class Hash implements DataBaseType {
 		DatabaseEntry data = new DatabaseEntry();
 		key.setData(keyString.getBytes());
 		
-		long start = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		
 		try {
 			oprStatus = database.get(null, key,data, LockMode.DEFAULT);
@@ -124,8 +124,8 @@ public class Hash implements DataBaseType {
 			System.out.println("Key not found");
 			return;
 		}
-		long end = System.currentTimeMillis();
-		System.out.print("Records found: 1\nExecution time: " + (end-start) +"ms\n\n");
+		long endTime = System.currentTimeMillis();
+		System.out.print("Records found: 1\nExecution time: " + (endTime-startTime) +"ms\n\n");
 		String getData = new String(data.getData());
 		
 		try {
@@ -156,10 +156,10 @@ public class Hash implements DataBaseType {
 		
 		// prompt user for range
 		System.out.println("Please enter search range.");
+		
 		System.out.print("Start: ");
 		Scanner s = new Scanner(System.in).useDelimiter(" ");
-		String start;
-		start = s.next();
+		String start = s.next();
 		DatabaseEntry startKey;
 		try {
 			startKey = new DatabaseEntry(start.getBytes("UTF-8"));
@@ -171,38 +171,58 @@ public class Hash implements DataBaseType {
 		System.out.print("End: ");
 		s = new Scanner(System.in).useDelimiter(" ");
 		String end = s.next();
-		try {
-			DatabaseEntry endKey = new DatabaseEntry(end.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e1) {
-			System.err.println("Encoding Exception:" + e1.toString());
-			return;
-		}
-		
+				
 		// Create cursor
+		long startTime = System.currentTimeMillis();
 		
 		try {
 			Cursor cursor = database.openCursor(null, null);
-			DatabaseEntry foundKey = new DatabaseEntry();
-			DatabaseEntry foundData = new DatabaseEntry();
+			DatabaseEntry Key = new DatabaseEntry();
+			DatabaseEntry Data = new DatabaseEntry();
 			
-			OperationStatus retVal = cursor.getSearchKey(startKey, foundData, LockMode.DEFAULT);
+			OperationStatus retVal = cursor.getSearchKey(startKey, Data, LockMode.DEFAULT);
 			
 		    if (retVal == OperationStatus.NOTFOUND) {
-		        System.out.println(foundKey + "/" + foundData + 
-		                           " not matched in database " + 
-		                           database.getDatabaseName());
+		        System.out.println(startKey + " not found in" + database.getDatabaseName());
+		        return;
 		    }
 		    
-			while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-				//Right now the loop iterates through entire data structure.
-				//cursor.getNext(foundKey, foundData, LockMode.DEFAULT);
+		    String getData = new String(Data.getData());
+		    String keyString =  new String(startKey.getData());
+		    
+		    /* Append initial key | data pair */
+		    FileWriter fileWriter = new FileWriter("answers.txt",true);
+		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
+		    
+		    
+			while(getData.compareTo(end) < 1) {
 				
-				
+				/* Write each key | data pair in range to file */
+				bufferedWriter.write(keyString + "\n");
+				bufferedWriter.write(getData + "\n\n");
+								
+				if(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+					getData = new String(Data.getData());
+					keyString = new String(startKey.getData());
+				} else {
+					break;
+				}
 			}
-		} catch (DatabaseException e) {
+			
+			long endTime = System.currentTimeMillis();
+			System.out.print("Records found: 1\nExecution time: " + (endTime-startTime) +"ms\n\n");
+			bufferedWriter.close();	
+			cursor.close();
+			
+		}
+		catch (DatabaseException e) {
 			System.err.println("Create Database Failed" + e.toString());
 			System.exit(1);	
 		}
+		catch (IOException e) {	
+			e.printStackTrace();
+			System.out.println("Writing error");
+		} 
 		
 	}
 

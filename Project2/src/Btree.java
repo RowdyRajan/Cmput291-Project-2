@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.Scanner;
 import com.sleepycat.db.*;
@@ -145,38 +146,80 @@ public class Btree implements DataBaseType {
 	public void retrieveByRange() {
 		if(database == null){
 			System.out.println("Please populate the database before continung");
+			return;
 		}
-
+		
 		// prompt user for range
 		System.out.println("Please enter search range.");
+		
 		System.out.print("Start: ");
 		Scanner s = new Scanner(System.in).useDelimiter(" ");
-		if(s.hasNext()){
-			String start = s.next();
+		String start = s.next();
+		DatabaseEntry startKey;
+		try {
+			startKey = new DatabaseEntry(start.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e1) {
+			System.err.println("Encoding Exception:" + e1.toString());
+			return;
 		}
-		
+				
 		System.out.print("End: ");
 		s = new Scanner(System.in).useDelimiter(" ");
-		if(s.hasNext()){
-			String end = s.next();
-		}
+		String end = s.next();
+		
 		
 		// Create cursor
+		long startTime = System.currentTimeMillis();
+		
 		try {
 			Cursor cursor = database.openCursor(null, null);
-			DatabaseEntry foundKey = new DatabaseEntry();
-			DatabaseEntry foundData = new DatabaseEntry();
+			DatabaseEntry Key = new DatabaseEntry();
+			DatabaseEntry Data = new DatabaseEntry();
 			
-			while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+			OperationStatus retVal = cursor.getSearchKeyRange(startKey, Data, LockMode.DEFAULT);
+			
+		    if (retVal == OperationStatus.NOTFOUND) {
+		        System.out.println(startKey + " not found in" + database.getDatabaseName());
+		        return;
+		    }
+		    
+		    String getData = new String(Data.getData());
+		    String keyString =  new String(startKey.getData());
+		    
+		    /* Append initial key | data pair */
+		    FileWriter fileWriter = new FileWriter("answers.txt",true);
+		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
+		    
+		    
+			while(getData.compareTo(end) < 1) {
 				
-				
+				/* Write each key | data pair in range to file */
+				bufferedWriter.write(keyString + "\n");
+				bufferedWriter.write(getData + "\n\n");
+								
+				if(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+					getData = new String(Data.getData());
+					keyString = new String(startKey.getData());
+				} else {
+					break;
+				}
 			}
-		} catch (DatabaseException e) {
+			
+			long endTime = System.currentTimeMillis();
+			System.out.print("Records found: 1\nExecution time: " + (endTime-startTime) +"ms\n\n");
+			bufferedWriter.close();	
+			cursor.close();
+			
+		}
+		catch (DatabaseException e) {
 			System.err.println("Create Database Failed" + e.toString());
 			System.exit(1);	
 		}
+		catch (IOException e) {	
+			e.printStackTrace();
+			System.out.println("Writing error");
+		} 
 	}
-
 	@Override
 	public void destroy() {
 		if(database == null){
