@@ -172,7 +172,7 @@ public class Btree implements DataBaseType {
 		System.out.println("You Entered: " + end);
 		
 		
-		// Create cursor
+		
 		long startTime = System.currentTimeMillis();
 		
 		try {
@@ -209,6 +209,7 @@ public class Btree implements DataBaseType {
 					//break;
 				}
 			}
+			System.out.println(getData.compareTo(end));
 			
 			long endTime = System.currentTimeMillis();
 			System.out.print("Records found: " + num + "\nExecution time: " + (endTime-startTime) +"ms\n\n");
