@@ -1,14 +1,11 @@
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
-
-import com.sleepycat.db.Database;
-import com.sleepycat.db.DatabaseConfig;
-import com.sleepycat.db.DatabaseEntry;
-import com.sleepycat.db.DatabaseException;
-import com.sleepycat.db.DatabaseType;
-
+import java.util.Scanner;
+import com.sleepycat.db.*;
 
 public class Hash implements DataBaseType {
 
+	Database database;
 	//File name for the table
 	private static final String MY_DB_TABLE = "/tmp/egsmith_db";
 	private static final int NUM_RECORDS = 1000;
@@ -23,7 +20,7 @@ public class Hash implements DataBaseType {
 			DatabaseConfig dbConfig = new DatabaseConfig();
 		    dbConfig.setType(DatabaseType.HASH);
 		    dbConfig.setAllowCreate(true);
-		    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
+		    database = new Database(MY_DB_TABLE, null, dbConfig);
 			System.out.println(MY_DB_TABLE + "successfully created!");
 			/*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
@@ -66,7 +63,7 @@ public class Hash implements DataBaseType {
 						ddbt.setSize(s.length()); 
 			
 						/* to insert the key/data pair into the database */
-			            myTable.putNoOverwrite(null, kdbt, ddbt);
+			            database.putNoOverwrite(null, kdbt, ddbt);
 		            }
 		        }
 		        catch (DatabaseException dbe) {
@@ -74,12 +71,13 @@ public class Hash implements DataBaseType {
 		            System.exit(1);
 		        }		
 		    
-			myTable.close();
-			myTable.remove(MY_DB_TABLE,null,null);
+			database.close();
+			database.remove(MY_DB_TABLE,null,null);
 		    
 		}
 		catch (Exception e1) {
 			System.err.println("Create Database Failed" + e1.toString());
+			System.exit(1);
 		}	
 		
 	}
@@ -98,7 +96,60 @@ public class Hash implements DataBaseType {
 
 	@Override
 	public void retrieveByRange() {
-		// TODO Auto-generated method stub
+		if(database == null){
+			System.out.println("Please populate the database before continung");
+			return;
+		}
+		
+		// prompt user for range
+		System.out.println("Please enter search range.");
+		System.out.print("Start: ");
+		Scanner s = new Scanner(System.in).useDelimiter(" ");
+		String start;
+		start = s.next();
+		DatabaseEntry startKey;
+		try {
+			startKey = new DatabaseEntry(start.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e1) {
+			System.err.println("Encoding Exception:" + e1.toString());
+			return;
+		}
+				
+		System.out.print("End: ");
+		s = new Scanner(System.in).useDelimiter(" ");
+		String end = s.next();
+		try {
+			DatabaseEntry endKey = new DatabaseEntry(end.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e1) {
+			System.err.println("Encoding Exception:" + e1.toString());
+			return;
+		}
+		
+		// Create cursor
+		
+		try {
+			Cursor cursor = database.openCursor(null, null);
+			DatabaseEntry foundKey = new DatabaseEntry();
+			DatabaseEntry foundData = new DatabaseEntry();
+			
+			OperationStatus retVal = cursor.getSearchKey(startKey, foundData, LockMode.DEFAULT);
+			
+		    if (retVal == OperationStatus.NOTFOUND) {
+		        System.out.println(foundKey + "/" + foundData + 
+		                           " not matched in database " + 
+		                           database.getDatabaseName());
+		    }
+		    
+			while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				//Right now the loop iterates through entire data structure.
+				//cursor.getNext(foundKey, foundData, LockMode.DEFAULT);
+				
+				
+			}
+		} catch (DatabaseException e) {
+			System.err.println("Create Database Failed" + e.toString());
+			System.exit(1);	
+		}
 		
 	}
 

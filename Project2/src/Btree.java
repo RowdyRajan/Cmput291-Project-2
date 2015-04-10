@@ -1,11 +1,7 @@
 import java.util.Random;
+import java.util.Scanner;
 
-import com.sleepycat.db.Database;
-import com.sleepycat.db.DatabaseConfig;
-import com.sleepycat.db.DatabaseEntry;
-import com.sleepycat.db.DatabaseException;
-import com.sleepycat.db.DatabaseType;
-
+import com.sleepycat.db.*;
 
 public class Btree implements DataBaseType {
 	
@@ -25,7 +21,7 @@ public class Btree implements DataBaseType {
 			DatabaseConfig dbConfig = new DatabaseConfig();
 		    dbConfig.setType(DatabaseType.BTREE);
 		    dbConfig.setAllowCreate(true);
-		    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
+		    database = new Database(MY_DB_TABLE, null, dbConfig);
 			System.out.println(MY_DB_TABLE + "successfully created!");
 			/*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
@@ -68,7 +64,7 @@ public class Btree implements DataBaseType {
 						ddbt.setSize(s.length()); 
 			
 						/* to insert the key/data pair into the database */
-			            myTable.putNoOverwrite(null, kdbt, ddbt);
+			            database.putNoOverwrite(null, kdbt, ddbt);
 		            }
 		        }
 		        catch (DatabaseException dbe) {
@@ -76,12 +72,13 @@ public class Btree implements DataBaseType {
 		            System.exit(1);
 		        }		
 		    
-			myTable.close();
-			myTable.remove(MY_DB_TABLE,null,null);
+			database.close();
+			database.remove(MY_DB_TABLE,null,null);
 		    
 		}
 		catch (Exception e1) {
 			System.err.println("Create Database Failed" + e1.toString());
+			System.exit(1);
 		}	
 		
 	}
@@ -102,8 +99,38 @@ public class Btree implements DataBaseType {
 
 	@Override
 	public void retrieveByRange() {
-		// TODO Auto-generated method stub
+		if(database == null){
+			System.out.println("Please populate the database before continung");
+		}
+
+		// prompt user for range
+		System.out.println("Please enter search range.");
+		System.out.print("Start: ");
+		Scanner s = new Scanner(System.in).useDelimiter(" ");
+		if(s.hasNext()){
+			String start = s.next();
+		}
 		
+		System.out.print("End: ");
+		s = new Scanner(System.in).useDelimiter(" ");
+		if(s.hasNext()){
+			String end = s.next();
+		}
+		
+		// Create cursor
+		try {
+			Cursor cursor = database.openCursor(null, null);
+			DatabaseEntry foundKey = new DatabaseEntry();
+			DatabaseEntry foundData = new DatabaseEntry();
+			
+			while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				
+				
+			}
+		} catch (DatabaseException e) {
+			System.err.println("Create Database Failed" + e.toString());
+			System.exit(1);	
+		}
 	}
 
 	@Override
