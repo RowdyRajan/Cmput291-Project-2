@@ -8,7 +8,7 @@ public class mydbtest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Database database;
+		
 		while (true) {
 			System.out.print("Input a number for one of the following\n"
 					+ "1. Create and poulate a database\n"
@@ -38,6 +38,12 @@ public class mydbtest {
 				System.out.println("Invalid choice please try again");
 				continue;
 			}
+		}
+	}
+	
+	private static void retrieveKey(Database database){
+		if (database == null){
+			System.out.println("DataBase not created please");
 		}
 	}
 
