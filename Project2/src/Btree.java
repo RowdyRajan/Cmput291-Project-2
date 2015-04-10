@@ -1,10 +1,19 @@
+
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 
 import com.sleepycat.db.Database;
 import com.sleepycat.db.DatabaseConfig;
 import com.sleepycat.db.DatabaseEntry;
 import com.sleepycat.db.DatabaseException;
 import com.sleepycat.db.DatabaseType;
+import com.sleepycat.db.LockMode;
+import com.sleepycat.db.OperationStatus;
+
 
 
 public class Btree implements DataBaseType {
@@ -25,7 +34,7 @@ public class Btree implements DataBaseType {
 			DatabaseConfig dbConfig = new DatabaseConfig();
 		    dbConfig.setType(DatabaseType.BTREE);
 		    dbConfig.setAllowCreate(true);
-		    Database myTable = new Database(MY_DB_TABLE, null, dbConfig);
+		    database = new Database(MY_DB_TABLE, null, dbConfig);
 			System.out.println(MY_DB_TABLE + " successfully created!");
 			/*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
@@ -45,6 +54,8 @@ public class Btree implements DataBaseType {
 						for ( int j = 0; j < range; j++ ) {
 						  s+=(new Character((char)(97+random.nextInt(26)))).toString();
 						}
+						System.out.println(s);	
+			            System.out.println("");
 			
 						/* to create a DBT for key */
 						kdbt = new DatabaseEntry(s.getBytes());
@@ -58,17 +69,16 @@ public class Btree implements DataBaseType {
 						s = "";
 						for ( int j = 0; j < range; j++ ) { 
 							s+=(new Character((char)(97+random.nextInt(26)))).toString();
-					        // to print out the key/data pair
-			                // System.out.println(s);	
-			                // System.out.println("");
 						}
+						System.out.println(s);	
+			            System.out.println("");
 						
 						/* to create a DBT for data */
 						ddbt = new DatabaseEntry(s.getBytes());
 						ddbt.setSize(s.length()); 
 			
 						/* to insert the key/data pair into the database */
-			            myTable.putNoOverwrite(null, kdbt, ddbt);
+			            database.putNoOverwrite(null, kdbt, ddbt);
 		            }
 		            System.out.println(MY_DB_TABLE + " Populated!");
 		        }
@@ -77,8 +87,7 @@ public class Btree implements DataBaseType {
 		            System.exit(1);
 		        }		
 		    
-			myTable.close();
-			myTable.remove(MY_DB_TABLE,null,null);
+		
 		    
 		}
 		catch (Exception e1) {
@@ -89,15 +98,53 @@ public class Btree implements DataBaseType {
 
 	@Override
 	public void retrieveByKey() {
+		//If no data base is populated
 		if(database == null){
 			System.out.println("Please populate the database before continung");
+			return;
+		}
+		System.out.println("Please enter the key you are searching for");
+		Scanner scanner = new Scanner(System.in);
+		String keyString = scanner.nextLine();
+		
+		OperationStatus oprStatus;
+		DatabaseEntry key = new DatabaseEntry();
+		DatabaseEntry data = new DatabaseEntry();
+		key.setData(keyString.getBytes());
+		
+		long start = System.currentTimeMillis();
+
+		try {
+			oprStatus = database.get(null, key,data, LockMode.DEFAULT);
+		} catch (DatabaseException e) {
+			System.out.println("Error");
+			return;
 		}
 		
+		if (oprStatus == OperationStatus.NOTFOUND){
+			System.out.println("Key not found");
+			return;
+		}
+		long end = System.currentTimeMillis();
+		System.out.print("Records found: 1\nExecution time: " + (end-start) +"ms\n\n");
+		String getData = new String(data.getData());
+		
+		
+		try {
+			FileWriter fileWriter = new FileWriter("answers.txt",true);
+			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
+			bufferedWriter.write(keyString + "\n");
+			bufferedWriter.write(getData + "\n\n");
+			bufferedWriter.close();	
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+			System.out.println("Writing error");
+		}
 	}
 
 	@Override
 	public void retrieveByData() {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -109,8 +156,17 @@ public class Btree implements DataBaseType {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		if(database == null){
+			return;
+		}
+		try {
+			database.close();
+			database.remove(MY_DB_TABLE, null, null);
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
