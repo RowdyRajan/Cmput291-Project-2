@@ -1,24 +1,25 @@
-import java.io.UnsupportedEncodingException;
-import java.util.Random;
-import java.util.Scanner;
-import com.sleepycat.db.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Hash implements DataBaseType {
+import com.sleepycat.db.*;
 
+public class Hash implements DataBaseType {
+	
 	Database database;
 	//File name for the table
+
 	private static final String MY_DB_TABLE = "/tmp/egsmith_db/myTable";
 	private static final int NUM_RECORDS = 1000;
 	
 	@Override
+	
 	public void populate() {
 
 		int range;
@@ -30,10 +31,9 @@ public class Hash implements DataBaseType {
 		    dbConfig.setType(DatabaseType.HASH);
 		    dbConfig.setAllowCreate(true);
 		    database = new Database(MY_DB_TABLE, null, dbConfig);
- 
-		    System.out.println(MY_DB_TABLE + " successfully created!");
-			
-		    /*  Generate a random string with the length between 64 and 127,
+			System.out.println(MY_DB_TABLE + " successfully created!");
+
+			/*  Generate a random string with the length between 64 and 127,
 			 *  inclusive.
 			 *
 			 *  Seeded once only.
@@ -47,38 +47,35 @@ public class Hash implements DataBaseType {
 		
 						/* to generate a key string */
 						range = 64 + random.nextInt( 64 );
+		            	//range = 2;
 						s = "";
 						for ( int j = 0; j < range; j++ ) {
 						  s+=(new Character((char)(97+random.nextInt(26)))).toString();
 						}
-						System.out.println(s);	
-			            System.out.println("");
-						
+						//System.out.println(s);	
+			            //System.out.println("");
 			
 						/* to create a DBT for key */
 						kdbt = new DatabaseEntry(s.getBytes());
 						kdbt.setSize(s.length()); 
 			
 				        // to print out the key/data pair
-				        // System.out.println(s);	
-			
+				        //System.out.println(s);	
+		
 						/* to generate a data string */
 						range = 64 + random.nextInt( 64 );
+						//range = 1;
 						s = "";
 						for ( int j = 0; j < range; j++ ) { 
 							s+=(new Character((char)(97+random.nextInt(26)))).toString();
-					        // to print out the key/data pair
-			                // System.out.println(s);	
-			                // System.out.println("");
 						}
-						System.out.println(s);	
-			            System.out.println("");
-						
+						//System.out.println(s);	
+			            //System.out.println("");
 						
 						/* to create a DBT for data */
 						ddbt = new DatabaseEntry(s.getBytes());
 						ddbt.setSize(s.length()); 
-			
+					
 						/* to insert the key/data pair into the database */
 			            database.putNoOverwrite(null, kdbt, ddbt);
 		            }
@@ -88,13 +85,49 @@ public class Hash implements DataBaseType {
 		            System.err.println("Populate the table: "+dbe.toString());
 		            System.exit(1);
 		        }		
-
+	    
 		}
 		catch (Exception e1) {
 			System.err.println("Create Database Failed" + e1.toString());
 			System.exit(1);
+		}	
+		
+	}
+	
+	/*
+	public void populate(){
+		DatabaseConfig dbConfig = new DatabaseConfig();
+	    dbConfig.setType(DatabaseType.BTREE);
+	    dbConfig.setAllowCreate(true);
+	    String s = "JACK";
+	    String s1 = "iscoo";
+	    String s3 = "JACK2";
+	    String s4 = "iscoo2";
+	    DatabaseEntry kdbt;
+	    DatabaseEntry ddbt;
+	    
+	    try {
+			database = new Database(MY_DB_TABLE, null, dbConfig);
+			kdbt = new DatabaseEntry(s.getBytes());
+			kdbt.setSize(s.length()); 
+			ddbt = new DatabaseEntry(s1.getBytes());
+			ddbt.setSize(s1.length()); 
+			database.putNoOverwrite(null, kdbt, ddbt);
+			
+			kdbt = new DatabaseEntry(s3.getBytes());
+			kdbt.setSize(s3.length()); 
+			ddbt = new DatabaseEntry(s4.getBytes());
+			ddbt.setSize(s4.length()); 
+			database.putNoOverwrite(null, kdbt, ddbt);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
+	*/
 
 	@Override
 	public void retrieveByKey() {
@@ -112,8 +145,8 @@ public class Hash implements DataBaseType {
 		DatabaseEntry data = new DatabaseEntry();
 		key.setData(keyString.getBytes());
 		
-		long startTime = System.currentTimeMillis();
-		
+		long start = System.currentTimeMillis();
+
 		try {
 			oprStatus = database.get(null, key,data, LockMode.DEFAULT);
 		} catch (DatabaseException e) {
@@ -125,12 +158,13 @@ public class Hash implements DataBaseType {
 			System.out.println("Key not found");
 			return;
 		}
-		long endTime = System.currentTimeMillis();
-		System.out.print("Records found: 1\nExecution time: " + (endTime-startTime) +"ms\n\n");
+		long end = System.currentTimeMillis();
+		System.out.print("Records found: 1\nExecution time: " + (end-start) +"ms\n\n");
 		String getData = new String(data.getData());
 		
+		
 		try {
-			FileWriter fileWriter = new FileWriter("answers.txt",true);
+			FileWriter fileWriter = new FileWriter("answers.txt", true);
 			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
 			bufferedWriter.write(keyString + "\n");
 			bufferedWriter.write(getData + "\n\n");
@@ -141,6 +175,8 @@ public class Hash implements DataBaseType {
 			System.out.println("Writing error");
 		}
 	}
+
+	
 
 	@Override
 	public void retrieveByData() {
@@ -174,7 +210,7 @@ public class Hash implements DataBaseType {
 			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
 			
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
-
+				
 				String dataString = new String(value.getData(), "UTF-8");
 				String keyString = new String(key.getData(), "UTF-8");
 				//System.out.println(dataString);
@@ -189,21 +225,28 @@ public class Hash implements DataBaseType {
 					bufferedWriter.write(keyString + "\n");
 					bufferedWriter.write(dataString + "\n\n");
 				}
+				
+				key = new DatabaseEntry();
+				value = new DatabaseEntry();
+				
 			}
+			bufferedWriter.close();
+			cursor.close();
 			
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 
-		} catch (IOException e) {
+		} catch (IOException e) {	
 			e.printStackTrace();
-			System.out.println("Error");
-
-		}
+			System.out.println("Writing error");
+		} 		
+		
 		long endTime = System.currentTimeMillis();
 
 		System.out.println("Records found: " + recordsFound);
 		System.out.println("Execution time: " + (endTime - startTime) + "ms");
+			
 		
 	}
 
@@ -233,7 +276,8 @@ public class Hash implements DataBaseType {
 		s = new Scanner(System.in);
 		String end = s.nextLine();
 		System.out.println("You Entered: " + end);
-				
+		
+		
 		long startTime = System.currentTimeMillis();
 		
 		try {
@@ -241,43 +285,63 @@ public class Hash implements DataBaseType {
 			DatabaseEntry Key = new DatabaseEntry();
 			DatabaseEntry Data = new DatabaseEntry();
 			
-			OperationStatus retVal = cursor.getSearchKeyRange(startKey, Data, LockMode.DEFAULT);
+		    String getData = new String();
+		    String keyString =  new String();
+		    			
+			OperationStatus retVal = cursor.getSearchKey(startKey, Data, LockMode.DEFAULT);
 			
-		    if (retVal == OperationStatus.NOTFOUND) {
-		        System.out.println(startKey + " not found in" + database.getDatabaseName());
-		        return;
+		    int num;
+
+			num=0;
+			if (retVal == OperationStatus.NOTFOUND) {
+				while(cursor.getNext(Key, Data, LockMode.DEFAULT)==OperationStatus.SUCCESS){
+					/* Acquire first key higher than the inputed start of range string in Database */
+					keyString = new String(Key.getData());
+					getData = new String(Data.getData());
+					num++;
+					
+					if(keyString.compareTo(start) >= 1) {
+						break;
+					}
+
+					Key = new DatabaseEntry();
+					Data = new DatabaseEntry();
+				}
 		    }
-		    
-		    String getData = new String(Data.getData());
-		    String keyString =  new String(startKey.getData());
-		    
+			
 		    /* Append initial key | data pair */
 		    FileWriter fileWriter = new FileWriter("answers.txt",true);
 		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
-		    int num;
 		    
+			/* Write first key | data pair in range to file */
+			bufferedWriter.write(keyString + "\n");
+			bufferedWriter.write(getData + "\n\n");
+					    
 		    if((start.compareTo(end) >= 1) || (keyString.compareTo(end) >= 1)){
 		    	num = 0;
-		    	keyString = end + "z";
+		    	System.out.println("\n----- No Entries in Range -----\n");
+		    	return;
 		    } else {
 		    	num = 1;
 		    }
-		    
-			while(keyString.compareTo(end) < 1) {
-				
-				System.out.println(keyString.compareTo(end));
-				/* Write each key | data pair in range to file */
-				bufferedWriter.write(keyString + "\n");
-				bufferedWriter.write(getData + "\n\n");
-				
-				if(cursor.getNext(Key, Data, LockMode.DEFAULT) != OperationStatus.SUCCESS) {
-					break;
-				}
+
+			while(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 				
 				keyString = new String(Key.getData());
 				getData = new String(Data.getData());
-				num++;	
+				
+				if(keyString.compareTo(end) < 1) {
+					/* Write each key | data pair in range to file */
+					bufferedWriter.write(keyString + "\n");
+					bufferedWriter.write(getData + "\n\n");
+					num++;
+				}
+
+				Key = new DatabaseEntry();
+				Data = new DatabaseEntry();
+					
 			}
+
 						
 			long endTime = System.currentTimeMillis();
 			System.out.print("Records found: " + num + "\nExecution time: " + (endTime-startTime) +"ms\n\n");
@@ -294,7 +358,7 @@ public class Hash implements DataBaseType {
 			System.out.println("Writing error");
 		} 
 	}
-
+	
 	@Override
 	public void destroy() {
 		if(database == null){
@@ -303,6 +367,7 @@ public class Hash implements DataBaseType {
 		try {
 			database.close();
 			database.remove(MY_DB_TABLE, null, null);
+
 			File table = new File("/tmp/egsmith_db/myTable");
 			table.delete();
 			
@@ -311,7 +376,8 @@ public class Hash implements DataBaseType {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
 	}
+	
+	
 
 }
