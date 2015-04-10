@@ -52,6 +52,10 @@ public class mydbtest {
 				case 2:
 					myData.retrieveByKey();
 					break;
+					
+				case 4:
+					myData.retrieveByRange();
+					break;
 				case 6:
 					myData.destroy();
 					System.out.println("Goodbye!");
