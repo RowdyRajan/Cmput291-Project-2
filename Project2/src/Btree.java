@@ -1,5 +1,6 @@
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,8 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.Scanner;
 import com.sleepycat.db.*;
-
-
+import java.lang.Object;
 
 public class Btree implements DataBaseType {
 	
@@ -163,14 +163,11 @@ public class Btree implements DataBaseType {
 			System.err.println("Encoding Exception:" + e1.toString());
 			return;
 		}
-		String other = new String(startKey.getData());
-		System.out.println(start.compareTo(other));
-		
+			
 		System.out.print("End: ");
 		s = new Scanner(System.in);
 		String end = s.nextLine();
 		System.out.println("You Entered: " + end);
-		
 		
 		
 		long startTime = System.currentTimeMillis();
@@ -193,24 +190,31 @@ public class Btree implements DataBaseType {
 		    /* Append initial key | data pair */
 		    FileWriter fileWriter = new FileWriter("answers.txt",true);
 		    BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);	
+		    int num;
 		    
-		    int num = 0;
-			while(getData.compareTo(end) < 1) {
-				System.out.println(getData.compareTo(end));
-				num++;
+		    if((start.compareTo(end) >= 1) || (keyString.compareTo(end) >= 1)){
+		    	num = 0;
+		    	keyString = end + "z";
+		    } else {
+		    	num = 1;
+		    }
+		    
+			while(keyString.compareTo(end) < 1) {
+				
+				System.out.println(keyString.compareTo(end));
 				/* Write each key | data pair in range to file */
 				bufferedWriter.write(keyString + "\n");
 				bufferedWriter.write(getData + "\n\n");
-								
-				if(cursor.getNext(Key, Data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-					getData = new String(Data.getData());
-					keyString = new String(Key.getData());
-				} else {
-					//break;
+				
+				if(cursor.getNext(Key, Data, LockMode.DEFAULT) != OperationStatus.SUCCESS) {
+					break;
 				}
+				
+				keyString = new String(Key.getData());
+				getData = new String(Data.getData());
+				num++;	
 			}
-			System.out.println(getData.compareTo(end));
-			
+						
 			long endTime = System.currentTimeMillis();
 			System.out.print("Records found: " + num + "\nExecution time: " + (endTime-startTime) +"ms\n\n");
 			bufferedWriter.close();	
@@ -226,6 +230,7 @@ public class Btree implements DataBaseType {
 			System.out.println("Writing error");
 		} 
 	}
+	
 	@Override
 	public void destroy() {
 		if(database == null){
@@ -234,6 +239,10 @@ public class Btree implements DataBaseType {
 		try {
 			database.close();
 			database.remove(MY_DB_TABLE, null, null);
+
+			File table = new File("/tmp/egsmith_db/myTable");
+			table.delete();
+			
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
