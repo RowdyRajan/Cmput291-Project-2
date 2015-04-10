@@ -182,10 +182,10 @@ public class Hash implements DataBaseType {
 			DatabaseEntry Key = new DatabaseEntry();
 			DatabaseEntry Data = new DatabaseEntry();
 			
-			OperationStatus retVal = cursor.getSearchKeyRange(startKey, Data, LockMode.DEFAULT);
-			
+			OperationStatus retVal = cursor.getSearchKey(startKey, Data, LockMode.DEFAULT);
+		
 		    if (retVal == OperationStatus.NOTFOUND) {
-		        System.out.println(startKey + " not found in" + database.getDatabaseName());
+		        System.out.println(startKey + " not found in database");
 		        return;
 		    }
 		    
