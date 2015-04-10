@@ -47,33 +47,37 @@ public class Btree implements DataBaseType {
 		
 						/* to generate a key string */
 						range = 64 + random.nextInt( 64 );
+		            	//range = 2;
 						s = "";
 						for ( int j = 0; j < range; j++ ) {
 						  s+=(new Character((char)(97+random.nextInt(26)))).toString();
 						}
-						System.out.println(s);	
-			            System.out.println("");
+						//System.out.println(s);	
+			            //System.out.println("");
 			
 						/* to create a DBT for key */
 						kdbt = new DatabaseEntry(s.getBytes());
 						kdbt.setSize(s.length()); 
 			
 				        // to print out the key/data pair
-				        // System.out.println(s);	
+				        //System.out.println(s);	
 		
 						/* to generate a data string */
 						range = 64 + random.nextInt( 64 );
+						//range = 1;
 						s = "";
 						for ( int j = 0; j < range; j++ ) { 
 							s+=(new Character((char)(97+random.nextInt(26)))).toString();
 						}
-						System.out.println(s);	
-			            System.out.println("");
+						//System.out.println(s);	
+			            //System.out.println("");
 						
 						/* to create a DBT for data */
 						ddbt = new DatabaseEntry(s.getBytes());
 						ddbt.setSize(s.length()); 
-			
+						
+						System.out.println(new String(ddbt.getData()));
+						System.out.println("");
 						/* to insert the key/data pair into the database */
 			            database.putNoOverwrite(null, kdbt, ddbt);
 		            }
@@ -193,42 +197,56 @@ public class Btree implements DataBaseType {
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry value = new DatabaseEntry();
 		
-		//Incrementor
+		//Incrementing counter
 		int recordsFound = 0;
 		
 		long startTime = System.currentTimeMillis();
 		
-		//Iteratatin throught the database 
+		//Iterating through the database 
 		try {
-			DatabaseEntry databaseEntry = new DatabaseEntry("a".getBytes());
+			//DatabaseEntry databaseEntry = new DatabaseEntry("a".getBytes());
 			Cursor cursor = database.openCursor(null, null);
-			cursor.getSearchKeyRange(databaseEntry, value, LockMode.DEFAULT);
-			//FileWriter fileWriter = new FileWriter("answers.txt",true);
-			//BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
+		
+			//cursor.getSearchKeyRange(databaseEntry, value, LockMode.DEFAULT);
+			FileWriter fileWriter = new FileWriter("answers.txt",true);
+			BufferedWriter bufferedWriter= new BufferedWriter(fileWriter);
+			
 			while(cursor.getNext(key, value, LockMode.DEFAULT)==OperationStatus.SUCCESS){
-				String dataStringt = new String(value.getData());
-				//bufferedWriter.write(dataStringt + "\n\n");
-				System.out.println(dataStringt);
+				
+				String dataString = new String(value.getData(), "UTF-8");
+				String keyString = new String(key.getData(), "UTF-8");
+				//System.out.println(dataString);
+				
 				//Testing if the data is equal
-				if(inputString.equals(new String(value.getData()))){
+				if(inputString.equals(dataString)){
 					recordsFound++;
 					
-					String keyString = new String(key.getData());
-					String dataString = new String(value.getData());
-					//bufferedWriter.write(keyString + "\n");
-					//bufferedWriter.write(dataString + "\n\n");
+					System.out.println(keyString);
+					System.out.println(dataString);
+					
+					bufferedWriter.write(keyString + "\n");
+					bufferedWriter.write(dataString + "\n\n");
 				}
 			}
+			bufferedWriter.close();
+			cursor.close();
 			
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 
-		}	
+		} catch (IOException e) {	
+			e.printStackTrace();
+			System.out.println("Writing error");
+		} 		
+		
 		long endTime = System.currentTimeMillis();
 
 		System.out.println("Records found: " + recordsFound);
 		System.out.println("Execution time: " + (endTime - startTime) + "ms");
+		
+		
+		
 		
 	}
 
